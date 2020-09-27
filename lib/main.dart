@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:spinner_input/spinner_input.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:spinner_input/spinner_input.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -25,7 +25,6 @@ class _MainAppState extends State<MainApp> {
   List<Item> _list = new List<Item>();
   ItemRepository repository = new ItemRepository();
   double spinner3 = -5;
-
 
   @override
   void initState() {
@@ -74,6 +73,22 @@ class _MainAppState extends State<MainApp> {
                         });
                       },
                     ),
+                    SpinnerInput(
+                      minValue: 0,
+                      maxValue: 200,
+                      step: 5,
+                      plusButton: SpinnerButtonStyle(elevation: 0, color: Colors.blue, borderRadius: BorderRadius.circular(0)),
+                      minusButton: SpinnerButtonStyle(elevation: 0, color: Colors.red, borderRadius: BorderRadius.circular(0)),
+                      middleNumberWidth: 70,
+                      middleNumberStyle: TextStyle(fontSize: 21),
+                      middleNumberBackground: Colors.yellowAccent.withOpacity(0.5),
+                      spinnerValue: spinner3,
+                      onChange: (newValue) {
+                      setState(() {
+                        spinner3 = newValue;
+                      });
+                      },
+                    ),
                     onChanged: (c){
                       setState(() {
                         _list[i].concluido = c;
@@ -81,28 +96,7 @@ class _MainAppState extends State<MainApp> {
                         _ordenarLista();
                       });
                     },
-                  ).
-          ),
-          				                // Set step ( can be int or double )
-				      Container(
-                margin: EdgeInsets.all(20),
-                child: SpinnerInput(
-                  minValue: 0,
-                  maxValue: 200,
-                  step: 5,
-                  plusButton: SpinnerButtonStyle(elevation: 0, color: Colors.blue, borderRadius: BorderRadius.circular(0)),
-                  minusButton: SpinnerButtonStyle(elevation: 0, color: Colors.red, borderRadius: BorderRadius.circular(0)),
-                  middleNumberWidth: 70,
-                  middleNumberStyle: TextStyle(fontSize: 21),
-                  middleNumberBackground: Colors.yellowAccent.withOpacity(0.5),
-                  spinnerValue: spinner3,
-                  onChange: (newValue) {
-                    setState(() {
-                      spinner3 = newValue;
-                    });
-                  },
-                ),
-              ),
+                  )),
           ],
         ),
       ),
