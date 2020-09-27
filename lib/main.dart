@@ -19,13 +19,17 @@ class MainApp extends StatefulWidget {
 }
 
 class _MainAppState extends State<MainApp> {
+
   final _formKey = GlobalKey<FormState>();
   var _itemController = TextEditingController();
   List<Item> _list = new List<Item>();
   ItemRepository repository = new ItemRepository();
+  double spinner3 = -5;
+
 
   @override
   void initState() {
+
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -35,49 +39,70 @@ class _MainAppState extends State<MainApp> {
         });
       });
     });
+
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Lista de Compras'), centerTitle: true),
+      appBar: AppBar(
+          title: Text('Lista de Compras'),
+          centerTitle: true
+      ),
       body: Scrollbar(
         child: ListView(
           children: [
             for (int i = 0; i < _list.length; i++)
               ListTile(
                   title: CheckboxListTile(
-                controlAffinity: ListTileControlAffinity.leading,
-                title: _list[i].concluido
-                    ? Text(
-                        _list[i].nome,
-                        style:
-                            TextStyle(decoration: TextDecoration.lineThrough),
-                      )
-                    : Text(_list[i].nome),
-                value: _list[i].concluido,
-                secondary: IconButton(
-                  icon: Icon(
-                    Icons.delete,
-                    size: 20.0,
-                    color: Colors.red[900],
-                  ),
-                  onPressed: () {
+                    controlAffinity: ListTileControlAffinity.leading,
+                    title: _list[i].concluido?
+                    Text(_list[i].nome, style: TextStyle(decoration: TextDecoration.lineThrough),):
+                    Text(_list[i].nome),
+                    value: _list[i].concluido,
+                    secondary: IconButton(
+                      icon: Icon(
+                        Icons.delete,
+                        size: 20.0,
+                        color: Colors.red[900],
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _list.removeAt(i);
+                          _updateLista();
+                          _ordenarLista();
+                        });
+                      },
+                    ),
+                    onChanged: (c){
+                      setState(() {
+                        _list[i].concluido = c;
+                        _updateLista();
+                        _ordenarLista();
+                      });
+                    },
+                  ).
+          ),
+          				                // Set step ( can be int or double )
+				      Container(
+                margin: EdgeInsets.all(20),
+                child: SpinnerInput(
+                  minValue: 0,
+                  maxValue: 200,
+                  step: 5,
+                  plusButton: SpinnerButtonStyle(elevation: 0, color: Colors.blue, borderRadius: BorderRadius.circular(0)),
+                  minusButton: SpinnerButtonStyle(elevation: 0, color: Colors.red, borderRadius: BorderRadius.circular(0)),
+                  middleNumberWidth: 70,
+                  middleNumberStyle: TextStyle(fontSize: 21),
+                  middleNumberBackground: Colors.yellowAccent.withOpacity(0.5),
+                  spinnerValue: spinner3,
+                  onChange: (newValue) {
                     setState(() {
-                      _list.removeAt(i);
-                      _updateLista();
-                      _ordenarLista();
+                      spinner3 = newValue;
                     });
                   },
                 ),
-                onChanged: (c) {
-                  setState(() {
-                    _list[i].concluido = c;
-                    _updateLista();
-                    _ordenarLista();
-                  });
-                },
-              )),
+              ),
           ],
         ),
       ),
@@ -88,19 +113,16 @@ class _MainAppState extends State<MainApp> {
     );
   }
 
-  _updateLista() async {
+  _updateLista() async{
     repository.saveData(_list);
     _list = await repository.readData();
   }
 
-  _ordenarLista() {
-    _list.sort((a, b) {
-      if (a.concluido && !b.concluido)
-        return 1;
-      else if (!a.concluido && b.concluido)
-        return -1;
-      else
-        return 0;
+  _ordenarLista(){
+    _list.sort((a, b){
+      if(a.concluido&& !b.concluido) return 1;
+      else if(!a.concluido && b.concluido) return -1;
+      else return 0;
     });
   }
 
@@ -135,8 +157,7 @@ class _MainAppState extends State<MainApp> {
                 onPressed: () {
                   if (_formKey.currentState.validate()) {
                     setState(() {
-                      _list.add(
-                          Item(nome: _itemController.text, concluido: false));
+                      _list.add(Item(nome:_itemController.text, concluido: false));
                       _updateLista();
                       _ordenarLista();
                       _itemController.text = "";
@@ -150,6 +171,7 @@ class _MainAppState extends State<MainApp> {
         });
   }
 }
+
 
 class Item {
   String nome;
@@ -170,7 +192,8 @@ class Item {
   }
 }
 
-class ItemRepository {
+class ItemRepository{
+
   Future<String> get _localPath async {
     final directory = await getApplicationDocumentsDirectory();
     return directory.path;
@@ -187,8 +210,8 @@ class ItemRepository {
       // Read the file
       String dataJson = await file.readAsString();
 
-      List<Item> data =
-          (json.decode(dataJson) as List).map((i) => Item.fromJson(i)).toList();
+      List<Item> data = (json.decode(dataJson) as List)
+          .map((i) => Item.fromJson(i)).toList();
       return data;
     } catch (e) {
       return List<Item>();
@@ -202,7 +225,7 @@ class ItemRepository {
       // Write the file
       file.writeAsString(data);
       return true;
-    } catch (e) {
+    }catch(e){
       return false;
     }
   }
